@@ -1,0 +1,28 @@
+name: Daily Leads Sync & Health Check
+
+on:
+  schedule:
+    # Pokreće se svako jutro u 06:00 UTC (08:00 po BiH ljetnom vremenu)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Omogućava ručno pokretanje u bilo koje vrijeme
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout kod
+        uses: actions/checkout@v4
+
+      - name: Postavi Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instaliraj zavisnosti
+        run: npm ci
+
+      - name: Provjeri ispravnost i gradnju aplikacije
+        run: npm run build
+
+      - name: Pokreni provjeru dostupnosti linkova
+        run: node scripts/check-links.mjs
